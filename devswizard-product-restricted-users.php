@@ -2,7 +2,7 @@
 /*
 Plugin Name: Product Visiblity Control for Users
 Description: It will work as a addons for Dokan plugin. which allow to select user who are able to see and purchase a product. It will works with dokan frontend product upload and edit page.
-Version: 1.0.2
+Version: 1.0.3
 Author: Emon Khan
 Author URI: https://emonkhan.me
 Plugin URI: https://devswizard.com/plugins
@@ -42,8 +42,10 @@ function dokan_custom_product_fields()
     echo '<label for="wpru_users" class="devswizard-label">' . __('Select Users', 'dokan-lite') . '</label>';
     echo '<select name="wpru_users[]" class="dokan-form-control user-selection" multiple>';
     foreach ($all_users as $user) {
+        $business_name = get_user_meta($user->ID, 'business_name', true);
+        $display_name = !empty($business_name) ? esc_html($business_name) : esc_html($user->display_name);
         $selected = in_array($user->ID, (array) $wpru_users) ? 'selected' : '';
-        echo '<option value="' . esc_attr($user->ID) . '" ' . $selected . '>' . esc_html($user->first_name) . ' (' . esc_html($user->user_email) . ')</option>';
+        echo '<option value="' . esc_attr($user->ID) . '" ' . $selected . '>' . $display_name . '</option>';
     }
     echo '</select>';
     echo '</div>';
@@ -82,25 +84,6 @@ function dokan_save_custom_product_fields($product_id)
 }
 add_action('dokan_process_product_meta', 'dokan_save_custom_product_fields');
 add_action('dokan_update_auction_product', 'dokan_save_custom_product_fields');
-
-
-// Vendor Dashboard Products to Regular sale nav menu renamed 
-function get_dashboard_nav($menus)
-{
-    $custom_menus = [
-        'products' => [
-            'title' => __('Regular sale', 'dokan-lite'),
-            'icon'  => '<i class="fas fa-briefcase"></i>',
-            'url'   => dokan_get_navigation_url('products'),
-            'pos'   => 10,
-        ],
-    ];
-
-    return array_merge($menus, $custom_menus);
-}
-
-add_filter('dokan_get_dashboard_nav', 'get_dashboard_nav');
-
 
 
 // Add custom fields to product edit and upload page
